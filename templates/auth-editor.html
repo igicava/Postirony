@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Аунтефикация{% endblock %}
+
+{% block body %}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h5 class="display-7 fw-normal text-body-emphasis">Введите ключ редактрования</h5>
+    <form method="post">
+        <br>
+        <input placeholder="Ключ редактрования" type="text" class="form-control" name="edit_key" id="edit_key">
+        <br>
+        <button class="btn btn-success" type="submit">Редактировать</button>
+    </form>
+</div>
+{% endblock %}

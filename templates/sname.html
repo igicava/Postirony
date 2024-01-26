@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск{% endblock title %}
+
+{% block body %}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h5 class="display-6 fw-normal text-body-emphasis">Поиск по названию</h5>
+    <form method="post">
+        <br>
+        <input placeholder="Название статьи" type="text" class="form-control" name="title" id="title">
+        <br>
+        <button class="btn btn-success" type="submit">Найти</button>
+    </form>
+</div>
+{% endblock body %}

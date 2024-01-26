@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block body %}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h1 class="text-start fw-normal text-body-emphasis">{{ post.title }}</h1>
+    <br>
+    <h5 class="text-start fw-normal text-body-emphasis">Автор статьи <b>{{ post.author }}</b></h5>
+    <br>
+    <pre class="text-start" style="font-family:Calibri;white-space:pre-wrap;font-size:20px;">{{ post.pretext }}</pre>
+    <br>
+    <img class="img-fluid" src="{{ post.img }}">
+    <br>
+    <br>
+    <br>
+    <hr>
+    <br>
+    <pre class="text-start" style="font-family:Calibri;white-space:pre-wrap;font-size:20px;">{{ post.text }}</pre>
+    <br>
+    <p class="text-start" style="font-family:Calibri;font-size:20px;">Вы автор поста? <a href="/posts/{{ post.id }}/auth-editor">Отредактируйте его!</a></p>
+    <br>
+    <a class="btn btn-warning" href="/posts/{{ post.id }}/comment">Комментировать пост</a>
+    <br>
+    <br>
+    <b><h1 class="text-start">Комментарии:</h1></b>
+    <br>
+    <br>
+    {% for i in comment %}
+        {% if i.pid == post.id %}
+        <div class="card mb-4 rounded-3 shadow-sm">
+            <div class="card-body">
+                <ul class="list-unstyled mt-3 mb-4">
+                    <li class="text-start"><h4><b>{{ i.name }}</b></h4></li>
+                    <br>
+                    <li class="text-start">{{ i.text }}</li>
+                    <br>
+                    <li class="text-start"><a href="/comments/{{ i.id }}/cedit">Редактировать</a></li>
+                </ul>
+            </div>
+          </div>
+        <br>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

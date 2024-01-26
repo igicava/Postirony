@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Успешно{% endblock title %}
+
+{% block body %}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h1 class="display-4 fw-normal text-body-emphasis">Пост успешно отредактрован!</h1>
+    <p class="fs-5 text-body-secondary">Пост успешно отредактрован. Теперь он выглядит по другому.</p>
+    <a href="/posts/{{ post.id }}" class="btn btn-warning">Посмотреть пост</a>
+</div>
+{% endblock body %}

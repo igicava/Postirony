@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='site/images/favicon.ico') }}" type="image/x-icon">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<div class="container py-3">
+  <header>
+    <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+      <a href="/pname" class="d-flex align-items-center link-body-emphasis text-decoration-none">
+        <img width="65" height="65" src="{{ url_for('static', filename='site/images/postirony-logo.png') }}">
+      </a>
+      <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/">Главная страница</a>
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/about">О проекте</a>
+        <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="/create">Создать пост</a>
+        <a href="/search" class="btn btn-warning py-2 link-body-emphasis text-decoration-none">Поиск по автору</a>
+      </nav>
+    </div>
+  </header>
+
+  {% block body %}{% endblock %}
+
+  <footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <div class="row">
+      <div class="col-12 col-md">
+        <small class="d-block mb-3 text-body-secondary">© 2023–2024</small>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Опции</h5>
+        <ul class="list-unstyled text-small">
+          <li class="mb-1"><a class="link-secondary text-decoration-none" href="/">Главная страница</a></li>
+          <li class="mb-1"><a class="link-secondary text-decoration-none" href="/create">Создать пост</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Информация</h5>
+        <ul class="list-unstyled text-small">
+          <li class="mb-1"><a class="link-secondary text-decoration-none" href="/about">О проекте</a></li>
+          <li class="mb-1"><a class="link-secondary text-decoration-none" href="/user-manual">Руководство пользователя</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
+<script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование комментария{% endblock %}
+
+{% block body %}
+    <b><h3 class="text-start">Форма измерения комментария:</h3></b>
+    <br>
+    <br>
+    <form method="post">
+        <input value="{{ com.name }}" placeholder="Автор" type="text" class="form-control" name="name" id="name">
+        <input style="display:none;" value="{{ post.id }}" placeholder="ID поста" type="text" class="form-control" name="pid" id="pid">
+        <br>
+        <input value="{{ com.key }}" placeholder="Ключ редактирования" type="text" class="form-control" name="key" id="key">
+        <br>
+        <textarea placeholder="Комментарий" rows="5" class="form-control" name="text" id="text">{{ com.text }}</textarea>
+        <br>
+        <button class="btn btn-success" type="submit">Сохранить</button>
+        <br>
+    </form>
+    <br>
+    <br>
+    <a class="btn btn-success" href="/comments/{{ com.id }}/{{ com.key }}/del">Удалить</a>
+{% endblock %}

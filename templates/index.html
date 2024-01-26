@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block body %}
+<main>
+  <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h1 class="display-4 fw-normal text-body-emphasis">Postirony</h1>
+    <p class="fs-5 text-body-secondary">Платформа свободного текста.<b>|</b></p>
+  </div>
+  <br>
+  <br>
+  <h3 class="text-start">Недавние посты:</h3>
+  <br>
+  {% if data|length > 0 %}
+    {% set change = 0 %}
+      {% for i in data[:10] %}
+        <div class="card mb-4 rounded-3 shadow-sm img-responsive">
+          <div class="card-header py-3">
+            <h4 class="my-0 fw-normal">Автор поста: <b>{{ i.author }}</b></h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">{{ i.title }}</h1>
+            <img class="img-fluid" src="{{ i.img }}">
+            <ul class="list-unstyled mt-3 mb-4">
+              <br>
+              <li style="font-size: 20px;">{{ i.pretext }}</li>
+            </ul>
+            <a href="/posts/{{ i.id }}" class="btn btn-warning">Посмотреть пост</a>
+          </div>
+        </div>
+    {% endfor %}
+  {% else %}
+    <h6 class="text-start">Ни одного поста ещё нет!</h6>
+  {% endif %}
+  <a href="/all">Показать все</a>
+</main>
+{% endblock %}

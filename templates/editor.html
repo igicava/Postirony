@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование поста{% endblock %}
+
+{% block body %}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+    <h1 class="display-4 fw-normal text-body-emphasis">Редактирование поста</h1>
+    <p style="font-family:Calibri;font-size:20px;" class="text-start">Вам могут пригодиться специальные символы: § © ® ° • ™ , просто скопируйте нужный и вставьте в <b>ТЕКСТ СТАТЬИ</b></p>
+    <form method="post">
+        <br>
+        <input placeholder="Заголовок" type="text" class="form-control" name="title" id="title" value="{{ post_edit.title }}">
+        <br>
+        <input placeholder="Интро-текст" type="text" class="form-control" name="pretext" id="pretext" value="{{ post_edit.pretext }}">
+        <br>
+        <input placeholder="Автор поста" type="text" class="form-control" name="author" id="author" value="{{ post_edit.author }}">
+        <br>
+        <input placeholder="Секретный ключ" type="text" class="form-control" name="edit_key" id="edit_key" value="{{ post_edit.edit_key }}">
+        <br>
+        <input placeholder="Изображение" type="text" class="form-control" name="img" id="img" value="{{ post_edit.img }}">
+        <br>
+        <div class="input-group mb-3">
+            <span class="input-group-text">Текст поста</span>
+            <textarea rows="50" class="form-control" aria-label="Текст поста" name="text" id="text">{{ post_edit.text }}</textarea>
+        </div>
+        <br>
+        <input class="btn btn-success" type="submit" value="Сохранить изменения">
+    </form>
+    <br>
+    <a href="/posts/{{ post_edit.id }}/{{ post_edit.edit_key }}/del" class="btn btn-success">Удалить пост</a>
+</div>
+{% endblock %}
