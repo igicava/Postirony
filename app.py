@@ -115,30 +115,59 @@ def posts(id):
 
 @app.route('/posts/<int:id>/auth-editor', methods=['POST', 'GET'])
 def auth_editor(id):
+    post = Post.query.get(id)
     if request.method == 'POST':
-        key = request.form['edit_key']
-        return redirect(f'/posts/{id}/{key}/edit')
+        if request.form['type'] == "1":
+            key = request.form['edit_key']
+            if key == post.edit_key:
+                return render_template('editor.html', post_edit=post)
+            else:
+                return render_template('error.html', error="Неверный ключ...")
+        elif request.form['type'] == "2":
+            title = request.form['title']
+            pretext = request.form['pretext']
+            author = request.form['author']
+            text = request.form['text']
+            img = request.form['img']
+            edit_key = request.form['edit_key']
+            if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
+                return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
+            post.title = title
+            post.pretext = pretext
+            post.author = author
+            post.text = text
+            post.img = img
+            post.edit_key = edit_key
+            try:
+                db.session.commit()
+                return render_template('successfully-edit.html', post=post)
+            except:
+                return render_template('error.html', error="Ошибка базы данных...")
     else:
         return render_template('auth-editor.html')
 
 
-@app.route('/posts/<int:id>/<string:key>/del')
-def posts_delete(id, key):
+@app.route('/posts/<int:id>/del', methods=["POST", "GET"])
+def posts_delete(id):
     post_delete = Post.query.get_or_404(id)
     comp = Comments.query.order_by(Comments.pid)
-    for i in comp: # удаление комментариев к посту
-        if i.pid == id:
-            db.session.delete(i)
-    if post_delete.edit_key == key:
-        try:
-            db.session.delete(post_delete)
-            db.session.commit()
-            return render_template('successfully-del.html')
-        except:
-            return render_template('error.html', error="Ошибка базы данных...")
+    if request.method == 'POST':
+        key = request.form['edit_key']
+        if key == post_delete.edit_key:
+            try:
+                for i in comp: # удаление комментариев к посту
+                    if i.pid == id:
+                        db.session.delete(i)
+                db.session.delete(post_delete)
+                db.session.commit()
+                return render_template('successfully-del.html')
+            except:
+                return render_template('error.html', error="Ошибка базы данных...")
+        else:
+            return render_template('error.html', error="Неверный ключ...")
     else:
-        return render_template('error.html', error="Неверный ключ...")
-
+        return render_template('auth-del.html')
+    
 
 @app.route('/comments/<int:id>/cedit', methods=['POST', 'GET'])
 def auth_com(id):
@@ -185,36 +214,6 @@ def del_comments(id, key):
             return redirect(f'/posts/{pid}')
         except:
             return render_template('error.html', error="Ошибка базы данных...")
-    else:
-        return render_template('error.html', error="Неверный ключ...")
-
-
-@app.route('/posts/<int:id>/<string:key>/edit', methods=["POST", "GET"])
-def post_editor(id, key):
-    post_edit = Post.query.get(id)
-    if post_edit.edit_key == key:
-        if request.method == "POST":
-            title = request.form['title']
-            pretext = request.form['pretext']
-            author = request.form['author']
-            text = request.form['text']
-            img = request.form['img']
-            edit_key = request.form['edit_key']
-            if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
-                return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-            post_edit.title = title
-            post_edit.pretext = pretext
-            post_edit.author = author
-            post_edit.text = text
-            post_edit.img = img
-            post_edit.edit_key = edit_key
-            try:
-                db.session.commit()
-                return render_template('successfully-edit.html', post=post_edit)
-            except:
-                return render_template('error.html', error="Ошибка базы данных...")
-        else:
-            return render_template('editor.html', post_edit=post_edit)
     else:
         return render_template('error.html', error="Неверный ключ...")
 
