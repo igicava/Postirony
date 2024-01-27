@@ -1,0 +1,8 @@
+meta:
+ environment: python
+ toolchain:
+   name: pip
+
+run:
+ command: gunicorn --bind 0.0.0.0:8080 app:app
+ containerPort: 8080
