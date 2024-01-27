@@ -1,21 +1,21 @@
-# postirony wsl!
+# postirony!
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text, desc
 
-
+# Шаблон БД
 class Base(DeclarativeBase):
     pass
 
-# создание приложения 
+# Создание приложения 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-# инициализация таблицы бд
+# Инициализация таблиц бд
 class Post(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
@@ -43,19 +43,19 @@ class Comments(db.Model):
 with app.app_context():
     db.create_all()
 
-# стринички сайта
+# Главная страница
 @app.route('/')
 def index():
     posts = Post.query.order_by(desc(Post.id)).all()
     return render_template('index.html', data=posts)
 
-
+# Вывод статей одного автора
 @app.route('/author/<string:name>')
 def author(name):
     names = Post.query.order_by(desc(Post.id)).all()
     return render_template('authors-post.html', data=names, name=name)
 
-
+# Поиск статей по автору
 @app.route('/search', methods=["POST", "GET"])
 def search():
     if request.method == "POST":
@@ -65,13 +65,13 @@ def search():
     else:
         return render_template('search.html')
 
-
+# Загрузки сразу всех статей 
 @app.route('/all')
 def all():
     posts = Post.query.order_by(desc(Post.id)).all()
     return render_template('all.html', data=posts)
 
-
+# Поиск статей по названию
 @app.route('/pname', methods=['POST', 'GET'])
 def pname():
     if request.method == 'POST':
@@ -81,14 +81,24 @@ def pname():
     else:
         return render_template('sname.html')
 
-
+# Создание комментариев
 @app.route('/posts/<int:id>/comment', methods=['POST', 'GET'])
 def comment(id):
     if request.method == 'POST':
+        posts = Post.query.order_by().all()
+        comments = Comments.query.order_by().all()
         name = request.form['name']
         pid = request.form['pid']
         text = request.form['text']
         key = request.form['key']
+        if len(text) < 10:
+            return render_template("error.html", error="Слишком маленький текст...")
+        for i in posts:
+            if i.author == name:
+                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
+        for i in comments:
+            if i.name == name:
+                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
         comment = Comments(name=name, pid=pid, text=text, key=key)
         try:
             db.session.add(comment)
@@ -100,19 +110,19 @@ def comment(id):
         post = db.session.get(Post, id)
         return render_template('comment.html', post=post)
 
-
+# О сайте
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-
+# Загрузка поста по id
 @app.route('/posts/<int:id>', methods=['POST', 'GET'])
 def posts(id):
     post = db.session.get(Post, id)
     comment = Comments.query.order_by(desc(Comments.id)).all()
     return render_template('posts.html', post=post, comment=comment)
 
-
+# Редактирование статьи
 @app.route('/posts/<int:id>/auth-editor', methods=['POST', 'GET'])
 def auth_editor(id):
     post = Post.query.get(id)
@@ -124,6 +134,7 @@ def auth_editor(id):
             else:
                 return render_template('error.html', error="Неверный ключ...")
         elif request.form['type'] == "2":
+            posts = Post.query.order_by().all()
             title = request.form['title']
             pretext = request.form['pretext']
             author = request.form['author']
@@ -132,6 +143,9 @@ def auth_editor(id):
             edit_key = request.form['edit_key']
             if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
                 return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
+            for i in posts:
+                if i.author == author:
+                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
             post.title = title
             post.pretext = pretext
             post.author = author
@@ -143,10 +157,12 @@ def auth_editor(id):
                 return render_template('successfully-edit.html', post=post)
             except:
                 return render_template('error.html', error="Ошибка базы данных...")
+        else:
+            return render_template('error.html', error="Неизвестно...")
     else:
         return render_template('auth-editor.html')
 
-
+# Удаление статьи
 @app.route('/posts/<int:id>/del', methods=["POST", "GET"])
 def posts_delete(id):
     post_delete = Post.query.get_or_404(id)
@@ -168,59 +184,66 @@ def posts_delete(id):
     else:
         return render_template('auth-del.html')
     
-
-@app.route('/comments/<int:id>/cedit', methods=['POST', 'GET'])
-def auth_com(id):
+# Редактирование комментария
+@app.route('/posts/<int:pid>/comments/<int:id>/cedit', methods=['POST', 'GET'])
+def auth_com(id, pid):
+    com = Comments.query.get(id)
     if request.method == 'POST':
-        key = request.form['key']
-        return redirect(f'/comments/{id}/{key}/cedit')
+        if request.form['type'] == "1":  
+            if request.form['key'] == com.key:
+                post = Post.query.get(pid)
+                return render_template('comment-edit.html', post=post, com=com)
+            else:
+                return render_template('error.html', error='Неверный ключ...')
+        elif request.form['type'] == "2":
+            posts = Post.query.order_by().all()
+            comments = Comments.query.order_by().all()
+            for i in posts:
+                if i.author == request.form['name']:
+                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
+            for i in comments:
+                if i.name == request.form['name']:
+                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
+            com.name = request.form['name']
+            com.key = request.form['key']
+            com.text = request.form['text']
+            try:
+                db.session.commit()
+                return redirect(f'/posts/{pid}')
+            except:
+                return render_template('error.html', error="Ошибка базы данных...")
+        else:
+            return render_template('error.html', error="Неизвестно...")
     else:
         return render_template('auth-com.html')
     
-
+# User manual
 @app.route('/user-manual')
 def user_manual():
     return render_template('user-manual.html')
 
-
-@app.route('/comments/<int:id>/<string:key>/cedit', methods=['POST', 'GET'])
-def comments(id, key):
-    comment = Comments.query.get_or_404(id)
-    if comment.key == key:
-        if request.method == 'POST':
-            comment.name = request.form['name']
-            comment.key = request.form['key']
-            comment.text = request.form['text']
+# Удаление комментария
+@app.route('/posts/<int:pid>/comments/<int:id>/del', methods=['POST', 'GET'])
+def del_comments(id, pid):
+    comment_delete = Comments.query.get_or_404(id)
+    if request.method == 'POST':
+        if comment_delete.key == request.form['key']:
             try:
+                db.session.delete(comment_delete)
                 db.session.commit()
-                return redirect(f'/posts/{comment.pid}')
+                return redirect(f'/posts/{pid}')
             except:
                 return render_template('error.html', error="Ошибка базы данных...")
         else:
-            post = db.session.get(Post, comment.pid)
-            return render_template('comment-edit.html', post=post, com=comment)
+            return render_template('error.html', error="Неверный ключ...")
     else:
-        return render_template('error.html', error="Неверный ключ...")
+        return render_template("auth-com-del.html")
 
-
-@app.route('/comments/<int:id>/<string:key>/del', methods=['POST', 'GET'])
-def del_comments(id, key):
-    comment_delete = Comments.query.get_or_404(id)
-    if comment_delete.key == key:
-        try:
-            pid = comment_delete.pid
-            db.session.delete(comment_delete)
-            db.session.commit()
-            return redirect(f'/posts/{pid}')
-        except:
-            return render_template('error.html', error="Ошибка базы данных...")
-    else:
-        return render_template('error.html', error="Неверный ключ...")
-
-
+# Создание статьи
 @app.route('/create', methods=["POST", "GET"])
 def create():
     if request.method == "POST":
+        posts = Post.query.order_by().all()
         title = request.form['title']
         pretext = request.form['pretext']
         author = request.form['author']
@@ -229,7 +252,9 @@ def create():
         text = request.form['text']
         if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
             return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-
+        for i in posts:
+            if i.author == author:
+                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
         post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text)
         try:
             db.session.add(post_create)
@@ -241,6 +266,6 @@ def create():
     else:
         return render_template('create.html')
 
-# запуск
+# Запуск
 if __name__ == "__main__":
     app.run(port=8080)
