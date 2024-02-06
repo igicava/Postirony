@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock title %}
+{% block body %}
+    <main class="form-signin text-center">
+        <form method="post">
+            <img class="mb-4" src="{{ url_for('static', filename='site/images/postirony-logo.png') }}" alt="Логотип" width="120" height="120">
+            <h1 class="h3 mb-3 fw-normal">Войдите</h1>
+            <br>
+            <input type="name" class="form-control" id="name" name="name" placeholder="Имя">
+            <br>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Пароль">
+            <br>
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
+            <p class="mt-5 mb-3 text-muted">© 2023-2024</p>
+        </form>
+    </main>
+{% endblock body %}

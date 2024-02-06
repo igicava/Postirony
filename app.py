@@ -38,6 +38,11 @@ class Comments(db.Model):
 
     def __repr__(self):
         return f'Имя: {self.name}'
+    
+class Users(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
 
 
 with app.app_context():
@@ -245,6 +250,41 @@ def create():
 '''
     Ожидается превратить "Постиронию" в соц. сеть. Системы регистриции, авторизации и т.д.
 '''
+
+# Прототип регистрации
+@app.route("/register", methods=['POST', 'GET'])
+def register():
+    if request.method == 'GET':
+        return render_template("register.html")
+    elif request.method == 'POST':
+        data = Users.query.order_by().all()
+        name = request.form['name']
+        password = request.form['password']
+        for i in data:
+            if i.name == name:
+                return "Пользователь уже существует"
+        user = Users(name = name, password = password)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return "Congratulations!"
+        except:
+            return render_template('error.html', error="Ошибка базы данных...")
+        
+# Прототип авторизации
+@app.route("/login", methods=['POST', 'GET'])
+def login():
+    if request.method == 'GET':
+        return render_template("login.html")
+    elif request.method == 'POST':
+        name = request.form['name']
+        password = request.form['password']
+        user = Users.query.filter_by(name=name).first()
+        if user.password == password:
+            return f"Hello {name}"
+        else:
+            return "Incorrect password"
+        
 
 # Запуск
 if __name__ == "__main__":
