@@ -85,20 +85,12 @@ def pname():
 @app.route('/posts/<int:id>/comment', methods=['POST', 'GET'])
 def comment(id):
     if request.method == 'POST':
-        posts = Post.query.order_by().all()
-        comments = Comments.query.order_by().all()
         name = request.form['name']
         pid = request.form['pid']
         text = request.form['text']
         key = request.form['key']
         if len(text) < 10:
             return render_template("error.html", error="Слишком маленький текст...")
-        for i in posts:
-            if i.author == name:
-                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
-        for i in comments:
-            if i.name == name:
-                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
         comment = Comments(name=name, pid=pid, text=text, key=key)
         try:
             db.session.add(comment)
@@ -134,7 +126,6 @@ def auth_editor(id):
             else:
                 return render_template('error.html', error="Неверный ключ...")
         elif request.form['type'] == "2":
-            posts = Post.query.order_by().all()
             title = request.form['title']
             pretext = request.form['pretext']
             author = request.form['author']
@@ -143,9 +134,6 @@ def auth_editor(id):
             edit_key = request.form['edit_key']
             if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
                 return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-            for i in posts:
-                if i.author == author:
-                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
             post.title = title
             post.pretext = pretext
             post.author = author
@@ -196,14 +184,6 @@ def auth_com(id, pid):
             else:
                 return render_template('error.html', error='Неверный ключ...')
         elif request.form['type'] == "2":
-            posts = Post.query.order_by().all()
-            comments = Comments.query.order_by().all()
-            for i in posts:
-                if i.author == request.form['name']:
-                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
-            for i in comments:
-                if i.name == request.form['name']:
-                    return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
             com.name = request.form['name']
             com.key = request.form['key']
             com.text = request.form['text']
@@ -243,7 +223,6 @@ def del_comments(id, pid):
 @app.route('/create', methods=["POST", "GET"])
 def create():
     if request.method == "POST":
-        posts = Post.query.order_by().all()
         title = request.form['title']
         pretext = request.form['pretext']
         author = request.form['author']
@@ -252,9 +231,6 @@ def create():
         text = request.form['text']
         if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
             return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-        for i in posts:
-            if i.author == author:
-                return render_template("error.html", error="Имя которое вы указали, уже использует другой пользователь...")
         post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text)
         try:
             db.session.add(post_create)
@@ -265,6 +241,10 @@ def create():
 
     else:
         return render_template('create.html')
+
+'''
+    Ожидается превратить "Постиронию" в соц. сеть. Системы регистриции, авторизации и т.д.
+'''
 
 # Запуск
 if __name__ == "__main__":
