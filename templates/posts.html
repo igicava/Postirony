@@ -18,7 +18,7 @@
     <br>
     <pre class="text-start" style="font-family:Calibri;white-space:pre-wrap;font-size:20px;">{{ post.text }}</pre>
     <br>
-    <p class="text-start" style="font-family:Calibri;font-size:20px;">Вы автор поста? <a href="/posts/{{ post.id }}/auth-editor">Отредактируйте его!</a></p>
+    <p class="text-start" style="font-family:Calibri;font-size:20px;"><a href="/posts/{{ post.id }}/auth-editor">Редактировать пост</a></p>
     <br>
     <a class="btn btn-warning" href="/posts/{{ post.id }}/comment">Комментировать пост</a>
     <br>
@@ -26,21 +26,23 @@
     <b><h1 class="text-start">Комментарии:</h1></b>
     <br>
     <br>
-    {% for i in comment %}
-        {% if i.pid == post.id %}
-        <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li class="text-start"><h4><b>{{ i.name }}</b></h4></li>
-                    <br>
-                    <li class="text-start">{{ i.text }}</li>
-                    <br>
-                    <li class="text-start"><a href="/posts/{{ post.id }}/comments/{{ i.id }}/cedit">Редактировать</a></li>
-                </ul>
+    {% if comment|length > 0 %}
+        {% for i in comment %}
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li class="text-start"><h4><b>{{ i.name }}</b></h4></li>
+                        <br>
+                        <li class="text-start">{{ i.text }}</li>
+                        <br>
+                        <li class="text-start"><a href="/posts/{{ post.id }}/comments/{{ i.id }}/cedit">Редактировать</a></li>
+                    </ul>
+                </div>
             </div>
-          </div>
-        <br>
-        {% endif %}
-    {% endfor %}
+            <br>
+        {% endfor %}
+    {% else %}
+        <p class="text-start">Комментариев пока нет!</p>
+    {% endif %}
 </div>
 {% endblock %}

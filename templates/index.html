@@ -33,6 +33,8 @@
   {% else %}
     <h6 class="text-start">Ни одного поста ещё нет!</h6>
   {% endif %}
-  <a href="/all">Показать все</a>
+  {% if data|length > 0 %}
+    <a href="/all">Показать все</a>
+  {% endif %}
 </main>
 {% endblock %}

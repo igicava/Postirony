@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ user.name }}{% endblock title %}
+{% block body %}
+    <style>
+      .img-avatar {
+        width: 256px; /* Задайте нужную ширину */
+        height: 256px; /* Задайте нужную высоту */
+        object-fit: cover; /* Обрезать изображение до заданных размеров */
+        object-position: center; /* Укажите центральное положение для обрезки */
+    }    
+    </style>
+    <main class="container">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+          <div class="col p-4 d-flex flex-column position-static">
+            <h3 class="mb-0">{{ user.name }}</h3>
+            <p class="card-text mb-auto">{{ user.all }}</p>
+          </div>
+          <div class="col-auto d-none d-lg-block">
+            {% if user.avatar %}
+              <img src="{{ user.avatar }}" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar">
+            {% else %}
+              <img src="https://avatars.mds.yandex.net/i?id=3f773bb5936b4e3ceeb725ebe07cd6dbf779997d-10961631-images-thumbs&n=13" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar">
+            {% endif %}
+          </div>
+        </div>
+    <div class="row g-5">
+      <div class="col-md-8">
+        <h3 class="pb-4 mb-4 fst-italic">
+          Ваши посты:
+        </h3>
+          {% if data|length > 0 %}
+            {% set change = 0 %}
+              {% for i in data %}
+                <div class="card mb-4 rounded-3 shadow-sm img-responsive">
+                  <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Автор поста: <b>{{ i.author }}</b></h4>
+                  </div>
+                  <div class="card-body">
+                    <h1 class="card-title pricing-card-title">{{ i.title }}</h1>
+                    <img class="img-fluid" src="{{ i.img }}">
+                    <ul class="list-unstyled mt-3 mb-4">
+                      <br>
+                      <li style="font-size: 20px;">{{ i.pretext }}</li>
+                    </ul>
+                    <a href="/posts/{{ i.id }}" class="btn btn-warning">Посмотреть пост</a>
+                  </div>
+                </div>
+            {% endfor %}
+          {% else %}
+            <h6 class="text-start">Ни одного поста ещё нет!</h6>
+          {% endif %}
+          <hr>
+          <div class="p-4">
+            <h4 class="fst-italic">В другом месте</h4>
+            <ol class="list-unstyled">
+              <li><a href="#">GitHub</a></li>
+              <li><a href="#">Twitter</a></li>
+              <li><a href="#">Facebook</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+{% endblock body %}

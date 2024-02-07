@@ -6,21 +6,21 @@
 <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
     <h1 class="display-4 fw-normal text-body-emphasis">Добавление поста</h1>
     <p style="font-family:Calibri;font-size:20px;" class="text-start">Вам могут пригодиться специальные символы: § © ® ° • ™, просто скопируйте нужный и вставьте в <b>ТЕКСТ СТАТЬИ</b></p>
+    <p style="font-family:Calibri;font-size:20px;" class="text-start"><b style="color: red;">ВНИМАНИЕ:</b> прежде чем создать пост у вас должен быть аккаунт на сайте. <a href="/register">Регистрация</a></p>
+    <p style="font-family:Calibri;font-size:20px;" class="text-start">Укажите имя пользователя (на которого публикуется пост) и пароль</p>
     <form method="post">
+        <input placeholder="Имя пользователя" type="text" class="form-control" name="name" id="name">
+        <br>
+        <input placeholder="Пароль" type="text" class="form-control" name="password" id="password">
+        <br>
+        <hr>
         <br>
         <input placeholder="Заголовок" type="text" class="form-control" name="title" id="title">
         <br>
         <textarea placeholder="Интро-текст" type="text" class="form-control" name="pretext" id="pretext"></textarea>
         <br>
-        <input placeholder="Автор статьи (только английские буквы, цифры)" type="text" class="form-control" name="author" id="author">
-        <br>
         <div class="input-group mb-3">
             <input placeholder="Вставьте ссылку на изображение (видна на обложке вашей статьи)" type="text" class="form-control" name="img" id="img">
-        </div>
-        <br>
-        <div class="input-group mb-3">
-            <span class="input-group-text">!</span>
-            <input placeholder="Ключ безопасности (только английские буквы, цифры)" type="text" class="form-control" name="edit_key" id="edit_key">
         </div>
         <br>
         <div class="input-group mb-3">

@@ -10,8 +10,8 @@ class Base(DeclarativeBase):
 
 # Создание приложения 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////data/posts.db'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -43,7 +43,8 @@ class Users(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
-
+    avatar: Mapped[str] = mapped_column(String)
+    all: Mapped[str] = mapped_column(Text, nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -116,7 +117,7 @@ def about():
 @app.route('/posts/<int:id>', methods=['POST', 'GET'])
 def posts(id):
     post = db.session.get(Post, id)
-    comment = Comments.query.order_by(desc(Comments.id)).all()
+    comment = Comments.query.filter_by(pid=id).all()
     return render_template('posts.html', post=post, comment=comment)
 
 # Редактирование статьи
@@ -129,22 +130,18 @@ def auth_editor(id):
             if key == post.edit_key:
                 return render_template('editor.html', post_edit=post)
             else:
-                return render_template('error.html', error="Неверный ключ...")
+                return render_template('error.html', error="Неверный пароль...")
         elif request.form['type'] == "2":
             title = request.form['title']
             pretext = request.form['pretext']
-            author = request.form['author']
             text = request.form['text']
             img = request.form['img']
-            edit_key = request.form['edit_key']
             if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
                 return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
             post.title = title
             post.pretext = pretext
-            post.author = author
             post.text = text
             post.img = img
-            post.edit_key = edit_key
             try:
                 db.session.commit()
                 return render_template('successfully-edit.html', post=post)
@@ -173,7 +170,7 @@ def posts_delete(id):
             except:
                 return render_template('error.html', error="Ошибка базы данных...")
         else:
-            return render_template('error.html', error="Неверный ключ...")
+            return render_template('error.html', error="Неверный пароль...")
     else:
         return render_template('auth-del.html')
     
@@ -187,7 +184,7 @@ def auth_com(id, pid):
                 post = Post.query.get(pid)
                 return render_template('comment-edit.html', post=post, com=com)
             else:
-                return render_template('error.html', error='Неверный ключ...')
+                return render_template('error.html', error='Неверный пароль...')
         elif request.form['type'] == "2":
             com.name = request.form['name']
             com.key = request.form['key']
@@ -220,7 +217,7 @@ def del_comments(id, pid):
             except:
                 return render_template('error.html', error="Ошибка базы данных...")
         else:
-            return render_template('error.html', error="Неверный ключ...")
+            return render_template('error.html', error="Неверный пароль...")
     else:
         return render_template("auth-com-del.html")
 
@@ -230,28 +227,31 @@ def create():
     if request.method == "POST":
         title = request.form['title']
         pretext = request.form['pretext']
-        author = request.form['author']
+        author = request.form['name']
         img = request.form['img']
-        edit_key = request.form['edit_key']
+        edit_key = request.form['password']
         text = request.form['text']
-        if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
-            return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-        post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text)
-        try:
-            db.session.add(post_create)
-            db.session.commit()
-            return render_template('successfully-create.html', post=post_create)
-        except:
-            return render_template('error.html', error="Ошибка базы данных...")
+        user = Users.query.filter_by(name=author).first()
+        if user != None:
+            if user.password == edit_key:
+                if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
+                    return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
+                post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text)
+                try:
+                    db.session.add(post_create)
+                    db.session.commit()
+                    return render_template('successfully-create.html', post=post_create)
+                except:
+                    return render_template('error.html', error="Ошибка базы данных...")
+            else:
+                return render_template('error.html', error="Неправильный пароль...")
+        else:
+            return render_template('error.html', error="Такого пользователя не существует...")
 
     else:
         return render_template('create.html')
 
-'''
-    Ожидается превратить "Постиронию" в соц. сеть. Системы регистриции, авторизации и т.д.
-'''
-
-# Прототип регистрации
+# Регистрация пользователей
 @app.route("/register", methods=['POST', 'GET'])
 def register():
     if request.method == 'GET':
@@ -260,18 +260,20 @@ def register():
         data = Users.query.order_by().all()
         name = request.form['name']
         password = request.form['password']
+        avatar = request.form['avatar']
+        all = request.form['all']
         for i in data:
             if i.name == name:
-                return "Пользователь уже существует"
-        user = Users(name = name, password = password)
+                return render_template('error.html', error="Пользователь с таким именем уже существует...")
+        user = Users(name = name, password = password, avatar = avatar, all = all)
         try:
             db.session.add(user)
             db.session.commit()
-            return "Congratulations!"
+            return render_template('true-register.html')
         except:
             return render_template('error.html', error="Ошибка базы данных...")
         
-# Прототип авторизации
+# Авторизация пользователей
 @app.route("/login", methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
@@ -281,10 +283,10 @@ def login():
         password = request.form['password']
         user = Users.query.filter_by(name=name).first()
         if user.password == password:
-            return f"Hello {name}"
+            data = Post.query.filter_by(author=user.name).all()
+            return render_template('profile.html', user=user, data=data)
         else:
-            return "Incorrect password"
-        
+            return render_template('error.html', error='Неверный пароль...')
 
 # Запуск
 if __name__ == "__main__":
