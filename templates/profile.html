@@ -7,15 +7,21 @@
         height: 256px; /* Задайте нужную высоту */
         object-fit: cover; /* Обрезать изображение до заданных размеров */
         object-position: center; /* Укажите центральное положение для обрезки */
-    }    
+      }    
+      .avatar-container {
+        margin: 10px; /* Измените значение по вашему усмотрению */
+      }    
     </style>
     <main class="container">
         <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
           <div class="col p-4 d-flex flex-column position-static">
             <h3 class="mb-0">{{ user.name }}</h3>
+            <br>
             <p class="card-text mb-auto">{{ user.all }}</p>
+            <br>
+            <a href="/create?p={{ user.password }}&n={{ user.name }}" class="btn btn-warning">Создать пост пост</a>
           </div>
-          <div class="col-auto d-none d-lg-block">
+          <div class="col-auto d-none d-lg-block avatar-container">
             {% if user.avatar %}
               <img src="{{ user.avatar }}" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar">
             {% else %}
@@ -43,6 +49,7 @@
                       <li style="font-size: 20px;">{{ i.pretext }}</li>
                     </ul>
                     <a href="/posts/{{ i.id }}" class="btn btn-warning">Посмотреть пост</a>
+                    <a href="/posts/{{ i.id }}/auth-editor" class="btn btn-warning">Редактировать</a>
                   </div>
                 </div>
             {% endfor %}
@@ -50,14 +57,6 @@
             <h6 class="text-start">Ни одного поста ещё нет!</h6>
           {% endif %}
           <hr>
-          <div class="p-4">
-            <h4 class="fst-italic">В другом месте</h4>
-            <ol class="list-unstyled">
-              <li><a href="#">GitHub</a></li>
-              <li><a href="#">Twitter</a></li>
-              <li><a href="#">Facebook</a></li>
-            </ol>
-          </div>
         </div>
       </div>
     </div>

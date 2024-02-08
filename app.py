@@ -44,7 +44,7 @@ class Users(db.Model):
     name: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     avatar: Mapped[str] = mapped_column(String)
-    all: Mapped[str] = mapped_column(Text, nullable=False)
+    all: Mapped[str] = mapped_column(Text(100), nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -247,9 +247,12 @@ def create():
                 return render_template('error.html', error="Неправильный пароль...")
         else:
             return render_template('error.html', error="Такого пользователя не существует...")
-
     else:
-        return render_template('create.html')
+        name = request.args.get('n')
+        password = request.args.get('p')
+        if name == None or password == None:
+            return render_template("error.html", error="Неизвестно...")
+        return render_template('create.html', n=name, p=password)
 
 # Регистрация пользователей
 @app.route("/register", methods=['POST', 'GET'])
@@ -265,6 +268,8 @@ def register():
         for i in data:
             if i.name == name:
                 return render_template('error.html', error="Пользователь с таким именем уже существует...")
+        if len(all) > 100:
+            return render_template('error.html', error="Слишком большое описание профиля")
         user = Users(name = name, password = password, avatar = avatar, all = all)
         try:
             db.session.add(user)
@@ -282,9 +287,12 @@ def login():
         name = request.form['name']
         password = request.form['password']
         user = Users.query.filter_by(name=name).first()
-        if user.password == password:
-            data = Post.query.filter_by(author=user.name).all()
-            return render_template('profile.html', user=user, data=data)
+        if password != None and user != None:
+            if user.password == password:
+                data = Post.query.filter_by(author=user.name).all()
+                return render_template('profile.html', user=user, data=data)
+            else:
+                return render_template('error.html', error='Неверный пароль...')
         else:
             return render_template('error.html', error='Неверный пароль...')
 
