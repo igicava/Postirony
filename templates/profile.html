@@ -19,7 +19,7 @@
             <br>
             <p class="card-text mb-auto">{{ user.all }}</p>
             <br>
-            <a href="/create?p={{ user.password }}&n={{ user.name }}" class="btn btn-warning">Создать пост пост</a>
+            <a href="/create?p={{ user.password }}&n={{ user.name }}&a={{ user.avatar }}" class="btn btn-warning">Создать пост</a>
           </div>
           <div class="col-auto d-none d-lg-block avatar-container">
             {% if user.avatar %}

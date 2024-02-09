@@ -24,10 +24,7 @@ class Post(db.Model):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     author: Mapped[str] = mapped_column(String, nullable=False)
     edit_key: Mapped[str] = mapped_column(String, nullable=False)
-
-    def __repr__(self):
-        return f'Название: {self.title}'
-
+    avatar: Mapped[str] = mapped_column(String)
 
 class Comments(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -35,16 +32,14 @@ class Comments(db.Model):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     pid: Mapped[int] = mapped_column(Integer, nullable=False)
     key: Mapped[str] = mapped_column(String)
-
-    def __repr__(self):
-        return f'Имя: {self.name}'
+    avatar: Mapped[str] = mapped_column(String)
     
 class Users(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     avatar: Mapped[str] = mapped_column(String)
-    all: Mapped[str] = mapped_column(Text(100), nullable=False)
+    all: Mapped[str] = mapped_column(Text, nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -231,12 +226,13 @@ def create():
         img = request.form['img']
         edit_key = request.form['password']
         text = request.form['text']
+        avatar = request.form['avatar']
         user = Users.query.filter_by(name=author).first()
         if user != None:
             if user.password == edit_key:
                 if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
                     return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-                post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text)
+                post_create = Post(title=title, pretext=pretext, author=author, img=img, edit_key=edit_key, text=text, avatar=avatar)
                 try:
                     db.session.add(post_create)
                     db.session.commit()
@@ -250,9 +246,10 @@ def create():
     else:
         name = request.args.get('n')
         password = request.args.get('p')
+        avatar = request.args.get('a')
         if name == None or password == None:
             return render_template("error.html", error="Неизвестно...")
-        return render_template('create.html', n=name, p=password)
+        return render_template('create.html', n=name, p=password, a=avatar)
 
 # Регистрация пользователей
 @app.route("/register", methods=['POST', 'GET'])
@@ -268,8 +265,6 @@ def register():
         for i in data:
             if i.name == name:
                 return render_template('error.html', error="Пользователь с таким именем уже существует...")
-        if len(all) > 100:
-            return render_template('error.html', error="Слишком большое описание профиля")
         user = Users(name = name, password = password, avatar = avatar, all = all)
         try:
             db.session.add(user)
