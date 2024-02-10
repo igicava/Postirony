@@ -3,6 +3,24 @@
 {% block title %}Поиск по авторам{% endblock title %}
 
 {% block body %}
+<style>
+  .img-avatar {
+    width: 50px; /* Задайте нужную ширину */
+    height: 50px; /* Задайте нужную высоту */
+    object-fit: cover; /* Обрезать изображение до заданных размеров */
+    object-position: center; /* Укажите центральное положение для обрезки */
+  }    
+  .avatar-container {
+    margin: 7px; /* Измените значение по вашему усмотрению */
+  }    
+  a {
+    text-decoration: none; /* Убираем подчеркивание у ссылки */
+  }
+
+  a:hover {
+      text-decoration: underline; /* Добавляем подчеркивание при наведении курсора */
+  }
+</style>
   <h3 class="text-start">Поиск по автору: {{ name }}</h3>
   <br>
   {% if data|length > 0 %}
@@ -10,7 +28,15 @@
         {% if i.author == name %}
           <div class="card mb-4 rounded-3 shadow-sm img-responsive">
             <div class="card-header py-3">
-              <h4 class="my-0 fw-normal">Автор поста: <b>{{ i.author }}</b></h4>
+              <h4 class="my-0 fw-normal">
+                <div class="col-auto d-none d-lg-block avatar-container">
+                  {% if i.avatar %}
+                    <img src="{{ i.avatar }}" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><a style="margin: 7px;" href="/user/{{ i.author }}">{{ i.author }}</a>
+                  {% else %}
+                    <img src="https://avatars.mds.yandex.net/i?id=3f773bb5936b4e3ceeb725ebe07cd6dbf779997d-10961631-images-thumbs&n=13" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><a style="margin: 7px;" href="/user/{{ i.author }}">{{ i.author }}</a>
+                  {% endif %}
+                </div>
+              </h4>
             </div>
             <div class="card-body">
               <h1 class="card-title pricing-card-title">{{ i.title }}</h1>

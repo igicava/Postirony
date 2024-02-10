@@ -32,7 +32,6 @@ class Comments(db.Model):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     pid: Mapped[int] = mapped_column(Integer, nullable=False)
     key: Mapped[str] = mapped_column(String)
-    avatar: Mapped[str] = mapped_column(String)
     
 class Users(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -87,21 +86,26 @@ def pname():
 def comment(id):
     if request.method == 'POST':
         name = request.form['name']
-        pid = request.form['pid']
+        pid = id
         text = request.form['text']
         key = request.form['key']
-        if len(text) < 10:
-            return render_template("error.html", error="Слишком маленький текст...")
-        comment = Comments(name=name, pid=pid, text=text, key=key)
-        try:
-            db.session.add(comment)
-            db.session.commit()
-            return redirect(f'/posts/{id}')
-        except:
-            return render_template('error.html', error="Ошибка базы данных...")
+        user = Users.query.filter_by(name=name).first()
+        if user == None:
+            return render_template("error.html", error="UserUndefinded...")
+        if user.password == key:
+            if len(text) < 10:
+                return render_template("error.html", error="Слишком маленький текст...")
+            comment = Comments(name=name, pid=pid, text=text, key=key)
+            try:
+                db.session.add(comment)
+                db.session.commit()
+                return redirect(f'/posts/{id}')
+            except:
+                return render_template('error.html', error="Ошибка базы данных...")
+        else:
+            return render_template("error.html", error="Неверный пароль...")
     else:
-        post = db.session.get(Post, id)
-        return render_template('comment.html', post=post)
+        return render_template('comment.html')
 
 # О сайте
 @app.route('/about')
@@ -120,32 +124,27 @@ def posts(id):
 def auth_editor(id):
     post = Post.query.get(id)
     if request.method == 'POST':
-        if request.form['type'] == "1":
-            key = request.form['edit_key']
-            if key == post.edit_key:
-                return render_template('editor.html', post_edit=post)
-            else:
-                return render_template('error.html', error="Неверный пароль...")
-        elif request.form['type'] == "2":
-            title = request.form['title']
-            pretext = request.form['pretext']
-            text = request.form['text']
-            img = request.form['img']
-            if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
-                return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
-            post.title = title
-            post.pretext = pretext
-            post.text = text
-            post.img = img
-            try:
-                db.session.commit()
-                return render_template('successfully-edit.html', post=post)
-            except:
-                return render_template('error.html', error="Ошибка базы данных...")
-        else:
-            return render_template('error.html', error="Неизвестно...")
+        title = request.form['title']
+        pretext = request.form['pretext']
+        text = request.form['text']
+        img = request.form['img']
+        if len(title) < 5 or len(pretext) < 10 or len(text) < 50:
+            return render_template("error.html", error="Слишком маленький текст, интро-текст или заголовок...")
+        post.title = title
+        post.pretext = pretext
+        post.text = text
+        post.img = img
+        try:
+            db.session.commit()
+            return render_template('successfully-edit.html', post=post)
+        except:
+            return render_template('error.html', error="Ошибка базы данных...")
     else:
-        return render_template('auth-editor.html')
+        password = request.args.get('p')
+        if password == post.edit_key:
+            return render_template('editor.html', post_edit=post)
+        else:
+            return render_template('error.html', error="KeyError...")
 
 # Удаление статьи
 @app.route('/posts/<int:id>/del', methods=["POST", "GET"])
@@ -181,8 +180,6 @@ def auth_com(id, pid):
             else:
                 return render_template('error.html', error='Неверный пароль...')
         elif request.form['type'] == "2":
-            com.name = request.form['name']
-            com.key = request.form['key']
             com.text = request.form['text']
             try:
                 db.session.commit()
@@ -289,7 +286,17 @@ def login():
             else:
                 return render_template('error.html', error='Неверный пароль...')
         else:
-            return render_template('error.html', error='Неверный пароль...')
+            return render_template('error.html', error='Undefined...')
+        
+# Просмотр профиля пользователя
+@app.route("/user/<string:name>")
+def user(name):
+    person = Users.query.filter_by(name=name).first()
+    if person != None:
+        posts = Post.query.filter_by(author=name).all()
+        return render_template("user.html", user=person, data=posts)
+    else:
+        return render_template("error.html", error="Пользователь не найден...")
 
 # Запуск
 if __name__ == "__main__":

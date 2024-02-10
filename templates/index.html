@@ -13,6 +13,13 @@
   .avatar-container {
     margin: 7px; /* Измените значение по вашему усмотрению */
   }    
+  a {
+    text-decoration: none; /* Убираем подчеркивание у ссылки */
+  }
+
+  a:hover {
+      text-decoration: underline; /* Добавляем подчеркивание при наведении курсора */
+  }
 </style>
 <main>
   <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
@@ -30,9 +37,9 @@
           <h4 class="my-0 fw-normal">
             <div class="col-auto d-none d-lg-block avatar-container">
               {% if i.avatar %}
-                <img src="{{ i.avatar }}" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><b style="margin: 7px;">{{ i.author }}</b>
+                <img src="{{ i.avatar }}" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><a style="margin: 7px;" href="/user/{{ i.author }}">{{ i.author }}</a>
               {% else %}
-                <img src="https://avatars.mds.yandex.net/i?id=3f773bb5936b4e3ceeb725ebe07cd6dbf779997d-10961631-images-thumbs&n=13" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><b style="margin: 7px;">{{ i.author }}</b>
+                <img src="https://avatars.mds.yandex.net/i?id=3f773bb5936b4e3ceeb725ebe07cd6dbf779997d-10961631-images-thumbs&n=13" alt="Аватар пользователя" class="img-fluid rounded-circle img-avatar"><a style="margin: 7px;" href="/user/{{ i.author }}">{{ i.author }}</a>
               {% endif %}
             </div>
           </h4>
