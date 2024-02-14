@@ -38,7 +38,7 @@ class Users(db.Model):
     name: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     avatar: Mapped[str] = mapped_column(String)
-    all: Mapped[str] = mapped_column(Text, nullable=False)
+    all: Mapped[str] = mapped_column(Text)
 
 with app.app_context():
     db.create_all()
@@ -192,9 +192,9 @@ def auth_com(id, pid):
         return render_template('auth-com.html')
     
 # User manual
-@app.route('/user-manual')
+@app.route('/developer')
 def user_manual():
-    return render_template('user-manual.html')
+    return render_template('developer.html')
 
 # Удаление комментария
 @app.route('/posts/<int:pid>/comments/<int:id>/del', methods=['POST', 'GET'])
@@ -212,6 +212,11 @@ def del_comments(id, pid):
             return render_template('error.html', error="Неверный пароль...")
     else:
         return render_template("auth-com-del.html")
+
+# Помощь проекту
+@app.route('/help')
+def help():
+    return render_template('help.html')
 
 # Создание статьи
 @app.route('/create', methods=["POST", "GET"])
@@ -259,6 +264,8 @@ def register():
         password = request.form['password']
         avatar = request.form['avatar']
         all = request.form['all']
+        if len(name) < 2:
+            return render_template('error.html', error="Слишком короткое имя...")
         for i in data:
             if i.name == name:
                 return render_template('error.html', error="Пользователь с таким именем уже существует...")
